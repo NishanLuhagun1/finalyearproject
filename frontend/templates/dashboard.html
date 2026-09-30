@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="head-row">
+    <div>
+        <h1 class="welcome">Welcome back, <b>{{ student.full_name }}</b></h1>
+        {% if student.course %}<p style="font-size:13px; color:var(--slate); margin:4px 0 0;">{{ student.course.name }}</p>{% endif %}
+    </div>
+    <form method="get">
+    <select name="semester" onchange="this.form.submit()" style="padding:6px 10px; border:1.5px solid var(--line); border-radius:8px; font-size:12px; font-family:var(--font-mono); background:var(--surface); color:var(--slate-soft);">
+        {% for s in semester_choices %}
+        <option value="{{ s }}" {% if s == active_semester %}selected{% endif %}>Semester {{ s }}</option>
+        {% endfor %}
+    </select>
+    </form>
+</div>
+
+{% if has_active_subjects %}
+<div class="section-head">
+    <h2>Subject performance</h2>
+    <div class="meta">G1 &middot; G2 &middot; Current standing</div>
+</div>
+<div class="predict-row">
+    {% for s in subject_trend %}
+    <div class="subj-card">
+        <div class="name">{{ s.name }} &mdash; Semester {{ active_semester }}</div>
+        <div class="grades">
+            <div class="g-box">
+                <div class="lbl">G1 &middot; Midterm</div>
+                <div class="v">{% if s.g1 is not None %}{{ s.g1|floatformat:0 }}%{% else %}&mdash;{% endif %}</div>
+            </div>
+            <div class="g-box">
+                <div class="lbl">G2 &middot; Preboard</div>
+                <div class="v">{% if s.g2 is not None %}{{ s.g2|floatformat:0 }}%{% else %}&mdash;{% endif %}</div>
+            </div>
+            <div class="g-box final">
+                <div class="lbl">Current standing</div>
+                <div class="v">{% if s.average is not None %}{{ s.average|floatformat:0 }}%{% else %}&mdash;{% endif %}</div>
+            </div>
+        </div>
+        {% if s.trend %}
+        <div class="trend-tag {{ s.trend.direction }}">
+            {% if s.trend.direction == 'up' %}
+            <svg class="icon-sm" viewBox="0 0 24 24"><polyline points="4,17 10,11 14,15 20,7"/><polyline points="14,7 20,7 20,13"/></svg>
+            +{{ s.trend.delta }}% since G1
+            {% else %}
+            <svg class="icon-sm" viewBox="0 0 24 24"><polyline points="4,7 10,13 14,9 20,17"/><polyline points="14,17 20,17 20,11"/></svg>
+            {{ s.trend.delta }}% since G1
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="trend-tag flat">Awaiting {% if s.g1 is not None %}preboard{% else %}midterm{% endif %} marks</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="section-head"><h2>Overall standing this semester</h2></div>
+{% if overall_standing is not None %}
+<div class="grade-card">
+    <div class="txt">
+        <div class="label">Current standing</div>
+        <div class="line">Average across your entered marks this semester &mdash; <b>{{ overall_standing }}%</b></div>
+        <div class="track"><div class="fill" style="width: {{ overall_standing }}%;"></div></div>
+    </div>
+    <div class="gauge">
+        <div class="ring" style="background: conic-gradient(var(--teal) 0% {{ overall_standing }}%, var(--line) {{ overall_standing }}% 100%);">
+            <div class="hole">
+                <div class="n">{{ overall_standing }}%</div>
+                <div class="g">Standing</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="panel">
+    <p style="font-size:13px; color:var(--slate-soft); margin:0;">
+        {% if has_active_subjects %}No marks entered yet this semester. Enter your marks to see your standing here.{% else %}Add a subject and enter marks to see your standing here.{% endif %}
+    </p>
+</div>
+{% endif %}
+
+{% if career_assessment and career_assessment.interest_area %}
+<div class="section-head"><h2>Career interest</h2></div>
+<div class="interest-card">
+    <div class="icon-box">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="9" rx="4.5"/><line x1="7" y1="10.5" x2="7" y2="14.5"/><line x1="5" y1="12.5" x2="9" y2="12.5"/><circle cx="15.5" cy="11" r="1"/><circle cx="18" cy="13.5" r="1"/></svg>
+    </div>
+    <div>
+        <div class="lbl">Selected interest area</div>
+        <div class="val">{{ career_assessment.get_interest_area_display }}</div>
+    </div>
+</div>
+{% endif %}
+
+{% if subject_trend or top_suggestions %}
+<div class="section-head"><h2>Study trend &amp; career suggestions</h2></div>
+<div class="grid-2">
+    <div class="panel">
+    <h3>Study trend &mdash; G1 &rarr; G2</h3>
+    <p class="sub">Change in each subject between Midterm and Preboard</p>
+    {% if subject_trend_chart %}
+        <svg viewBox="0 0 460 220" style="width:100%; height:auto;">
+            {% for g in chart_gridlines %}
+            <line x1="60" y1="{{ g.y }}" x2="420" y2="{{ g.y }}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3 4"/>
+            <text x="52" y="{{ g.y }}" font-size="10" fill="var(--slate-soft)" text-anchor="end" dominant-baseline="middle">{{ g.label }}</text>
+            {% endfor %}
+
+            {% for s in subject_trend_chart %}
+            <polyline points="80,{{ s.y1 }} 380,{{ s.y2 }}" fill="none" stroke="{{ s.color }}" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="80" cy="{{ s.y1 }}" r="5.5" fill="{{ s.color }}" stroke="#fff" stroke-width="2.5"/>
+            <circle cx="380" cy="{{ s.y2 }}" r="5.5" fill="{{ s.color }}" stroke="#fff" stroke-width="2.5"/>
+            {% endfor %}
+
+            <text x="80" y="203" font-size="11" font-weight="600" fill="var(--slate)" text-anchor="middle">G1</text>
+            <text x="380" y="203" font-size="11" font-weight="600" fill="var(--slate)" text-anchor="middle">G2</text>
+        </svg>
+
+        <div style="display:flex; flex-wrap:wrap; gap:10px 16px; margin-top:16px;">
+            {% for s in subject_trend_chart %}
+            <div style="display:flex; align-items:center; gap:6px; font-size:12px;">
+                <span style="width:10px; height:10px; border-radius:50%; background:{{ s.color }}; flex:none;"></span>
+                <span style="color:var(--ink); font-weight:500;">{{ s.name }}</span>
+                <span style="font-family:var(--font-mono); color:var(--slate-soft);">{{ s.trend_label }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="font-size:12.5px; color:var(--slate-soft);">No completed subjects yet.</p>
+        {% endif %}
+</div>
+
+    <div class="panel">
+        <h3>Recommended career suggestions</h3>
+        {% if top_suggestions %}
+        <div class="career-grid">
+            {% for s in top_suggestions %}
+            <div class="career-card">
+                <div class="icon-box">
+                    <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/><line x1="7" y1="7" x2="7.01" y2="7"/><line x1="7" y1="17" x2="7.01" y2="17"/></svg>
+                </div>
+                <div class="t">{{ s.career.name }}</div>
+                <div class="match">{{ s.match_score }}% match</div>
+                <div class="d">{{ s.tip }}</div>
+                <a href="{% url 'career_roadmap' %}" class="btn-mini">Explore path</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="font-size:12.5px; color:var(--slate-soft);">Complete your career interest and skills to see suggestions here.</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<div class="section-head"><h2>Your semesters</h2></div>
+{% if semester_list %}
+    {% for sem in semester_list %}
+    <div class="eligibility-row">
+        <span>
+            Semester {{ sem.semester }} &mdash; {{ sem.subject_count }} subject{{ sem.subject_count|pluralize }},
+            {{ sem.marks_done }}/{{ sem.subject_count }} with marks entered
+        </span>
+        <span class="{% if sem.complete %}status-ok{% else %}status-fail{% endif %}">
+            {% if sem.complete %}Complete{% else %}In progress{% endif %}
+        </span>
+    </div>
+    <div class="step-nav" style="margin-bottom: 14px;">
+        <a href="{% url 'add_subject' %}?semester={{ sem.semester }}" style="flex:1;">
+            <button type="button" class="btn-secondary" style="width: 100%;">Add subjects</button>
+        </a>
+        <a href="{% url 'add_marks' %}?semester={{ sem.semester }}" style="flex:1;">
+            <button type="button" class="btn-secondary" style="width: 100%;">Enter marks</button>
+        </a>
+        <a href="{% url 'score_summary' %}?semester={{ sem.semester }}" style="flex:1;">
+            <button type="button" class="btn-secondary" style="width: 100%;">View summary</button>
+        </a>
+    </div>
+    {% endfor %}
+{% else %}
+    <p style="color: var(--slate); font-size: 14px;">
+        You haven't added any subjects yet. Start with your first semester below.
+    </p>
+    <a href="{% url 'add_subject' %}?semester=1">
+        <button type="button" class="btn-primary">Add your first subject</button>
+    </a>
+{% endif %}
+
+<div class="section-head"><h2>Your goals</h2></div>
+<div class="panel">
+    {% if goal_count %}
+        <p style="color: var(--slate); font-size: 14px;">
+            {{ goals_pending }} of {{ goal_count }} goal{{ goal_count|pluralize }} still in progress.
+        </p>
+    {% else %}
+        <p style="color: var(--slate); font-size: 14px;">
+            No goals set yet. Give yourself something to aim for this semester.
+        </p>
+    {% endif %}
+    <a href="{% url 'goal_list' %}">
+        <button type="button" class="btn-secondary" style="width:100%;">Manage goals</button>
+    </a>
+</div>
+
+{% endblock %}

@@ -1,0 +1,24 @@
+{
+  "results": [
+    {
+      "model": "Linear Regression",
+      "r2": 0.7968,
+      "mae": 1.2656,
+      "mse": 4.1666,
+      "rmse": 2.0412
+    },
+    {
+      "model": "Random Forest",
+      "r2": 0.8343,
+      "mae": 1.2419,
+      "mse": 3.398,
+      "rmse": 1.8434
+    }
+  ],
+  "best_model": "Random Forest",
+  "features": [
+    "studytime",
+    "G1",
+    "G2"
+  ]
+}

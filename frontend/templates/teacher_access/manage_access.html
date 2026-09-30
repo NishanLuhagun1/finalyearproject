@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Teacher Access</h2>
+<p style="color:var(--slate); font-size:14px; margin-top:-8px;">
+    Generate a link and send it to your teacher. They need their own teacher account to accept it, and you can revoke access at any time.
+</p>
+
+<div class="card">
+    <h3>Generate a new invite</h3>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="generate">
+        <button type="submit" class="btn-primary">Generate invite link</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Your invites</h3>
+    {% if grants %}
+        {% for grant in grants %}
+        <div class="eligibility-row">
+            <span>
+                {% if grant.is_active %}{{ grant.teacher.user.username }}{% else %}Pending invite{% endif %}
+            </span>
+            <span class="{% if grant.is_active %}status-ok{% else %}status-fail{% endif %}">
+                {% if grant.is_active %}Active{% else %}Awaiting acceptance{% endif %}
+            </span>
+        </div>
+        {% if not grant.is_active %}
+        <div style="display:flex; gap:8px; align-items:center; margin:4px 0 10px;">
+            <input type="text" readonly value="{{ request.scheme }}://{{ request.get_host }}{% url 'accept_teacher_invite' grant.invite_token %}" id="invite-link-{{ grant.id }}" style="flex:1; font-size:12px; padding:8px 10px; border:1.5px solid var(--line); border-radius:8px; background:var(--surface-2); color:var(--slate);">
+            <button type="button" class="btn-secondary" style="width:auto; padding:8px 14px;" onclick="var el=document.getElementById('invite-link-{{ grant.id }}'); el.select(); navigator.clipboard.writeText(el.value); this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy',1500);">Copy</button>
+        </div>
+        {% endif %}
+        <form method="post" style="margin-bottom:14px;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="revoke">
+            <input type="hidden" name="grant_id" value="{{ grant.id }}">
+            <button type="submit" class="btn-secondary" style="width:100%;">Revoke</button>
+        </form>
+        {% endfor %}
+    {% else %}
+        <p style="color:var(--slate); font-size:14px;">No invites yet. Generate one above to share your progress with a teacher.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

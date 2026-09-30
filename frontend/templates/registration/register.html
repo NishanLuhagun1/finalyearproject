@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="auth-page">
+    <div class="auth-card wide">
+        <div class="auth-brand">
+            <div class="mark"><img src="{% static 'img/skillpath-logo.png' %}" alt="SkillPath logo"></div>
+            <div class="name">Student Performance<br>Predictor</div>
+        </div>
+
+        <h1>Create Account</h1>
+        <p class="sub">Set up your student profile to get started.</p>
+
+        {{ form.non_field_errors }}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <p class="field-section-label">I am registering as</p>
+            <div class="chip-row" style="margin-bottom:6px;">
+                {% for radio in form.role %}
+                <label class="chip">{{ radio.tag }} {{ radio.choice_label }}</label>
+                {% endfor %}
+            </div>
+            {{ form.role.errors }}
+
+            <p class="field-section-label">About you</p>
+
+            <label class="field">
+                <span>Full name</span>
+                <div class="input-wrap">
+                    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c1.5-4 4-6 7.5-6s6 2 7.5 6"/></svg>
+                    {{ form.full_name }}
+                </div>
+                {{ form.full_name.errors }}
+            </label>
+
+            <div id="student-fields">
+            <label class="field">
+                <span>Student ID</span>
+                <div class="input-wrap">
+                    <svg class="icon" viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="2"/><circle cx="9" cy="12" r="1.5"/><line x1="13" y1="10" x2="17" y2="10"/><line x1="13" y1="14" x2="17" y2="14"/></svg>
+                    {{ form.student_id }}
+                </div>
+                {{ form.student_id.errors }}
+            </label>
+
+            <label class="field">
+                <span>Course</span>
+                <div class="input-wrap">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M6 10v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>
+                    {{ form.course }}
+                    <svg class="select-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                </div>
+                {{ form.course.errors }}
+            </label>
+
+            </div>
+
+            <p class="field-section-label">Account details</p>
+
+            <label class="field">
+                <span>Username</span>
+                <div class="input-wrap">
+                    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M4 21c1.5-3.5 4.5-5.5 8-5.5s6.5 2 8 5.5"/></svg>
+                    {{ form.username }}
+                </div>
+                {{ form.username.errors }}
+            </label>
+
+            <label class="field">
+                <span>Password</span>
+                <div class="input-wrap">
+                    <svg class="icon" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                    {{ form.password1 }}
+                    <button type="button" class="toggle-eye" onclick="var p=this.previousElementSibling; p.type = p.type==='password' ? 'text' : 'password';" aria-label="Show password">
+                        <svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
+                {{ form.password1.errors }}
+            </label>
+
+            <label class="field">
+                <span>Confirm password</span>
+                <div class="input-wrap">
+                    <svg class="icon" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                    {{ form.password2 }}
+                    <button type="button" class="toggle-eye" onclick="var p=this.previousElementSibling; p.type = p.type==='password' ? 'text' : 'password';" aria-label="Show password">
+                        <svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
+                {{ form.password2.errors }}
+            </label>
+
+            <p class="field-section-label">Optional details</p>
+
+            <label class="field">
+                <span>College name</span>
+                <div class="input-wrap">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><line x1="9" y1="21" x2="9" y2="13"/><line x1="15" y1="21" x2="15" y2="13"/></svg>
+                    {{ form.college_name }}
+                </div>
+                {{ form.college_name.errors }}
+            </label>
+
+            <label class="field">
+                <span>Contact number</span>
+                <div class="input-wrap">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.902.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.908.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>
+                    {{ form.contact }}
+                </div>
+                {{ form.contact.errors }}
+            </label>
+
+            <label class="field">
+                <span>Address</span>
+                <div class="input-wrap">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    {{ form.address }}
+                </div>
+                {{ form.address.errors }}
+            </label>
+
+            <button class="btn-primary" type="submit" style="margin-top: 8px;">Create account</button>
+        </form>
+
+        <div class="auth-foot">Already have an account? <a href="{% url 'login' %}">Login here</a></div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var box = document.getElementById('student-fields');
+    var radios = document.querySelectorAll('input[name="role"]');
+    function sync() {
+        var checked = document.querySelector('input[name="role"]:checked');
+        box.style.display = checked && checked.value === 'teacher' ? 'none' : '';
+    }
+    radios.forEach(function (r) { r.addEventListener('change', sync); });
+    sync();
+})();
+</script>
+
+{% endblock %}

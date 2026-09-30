@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-brand">
+    <div class="mark"><img src="{% static 'img/skillpath-logo.png' %}" alt="SkillPath logo"></div>        
+    <div class="name">SkillPath: Student Performance<br>Predictor</div>
+        </div>
+
+        <h1>Student Login</h1>
+        <p class="sub">Sign in to pick up your semester where you left off.</p>
+
+        {{ form.non_field_errors }}
+
+        <form method="post">
+            {% csrf_token %}
+            <label class="field">
+                <span>Username</span>
+                <div class="input-wrap">
+                    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c1.5-4 4-6 7.5-6s6 2 7.5 6"/></svg>
+                    {{ form.username }}
+                </div>
+                {{ form.username.errors }}
+            </label>
+
+            <label class="field">
+                <span>Password</span>
+                <div class="input-wrap">
+                    <svg class="icon" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                    {{ form.password }}
+                    <button type="button" class="toggle-eye" onclick="var p=this.previousElementSibling; p.type = p.type==='password' ? 'text' : 'password';" aria-label="Show password">
+                        <svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
+                {{ form.password.errors }}
+            </label>
+
+            <div class="auth-row-between">
+                <label class="auth-remember"><input type="checkbox" name="remember_me" value="1" checked> Remember me</label>
+            </div>
+
+            <button class="btn-primary" type="submit">Login</button>
+        </form>
+
+        <div class="auth-foot">New here? <a href="{% url 'register' %}">Create an account</a></div>
+    </div>
+</div>
+
+{% endblock %}

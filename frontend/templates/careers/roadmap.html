@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Career Roadmap</h2>
+
+{% if not assessment or assessment.communication_skill is None %}
+<div class="card">
+    <p style="color: var(--slate); font-size: 14px;">
+        Complete your career interest and skills assessment to see your personalized career roadmap.
+    </p>
+    <a href="{% url 'add_interest' %}?semester=1">
+        <button type="button" class="btn-primary">Set up career profile</button>
+    </a>
+</div>
+{% else %}
+
+<div class="card">
+    <p class="step-label">Based on</p>
+    <h3>Your interest, marks and study time</h3>
+    <p style="color: var(--slate); font-size: 14px; margin-top: -6px;">
+        Interest area: {{ assessment.get_interest_area_display|default:"Not chosen yet" }}
+        {% if not has_subjects %}&middot; Add subjects and marks to make these plans specific.{% endif %}
+    </p>
+</div>
+
+{% for s in suggestions %}
+{% with r=s.roadmap %}
+<details class="road-card" {% if forloop.first %}open{% endif %}>
+    <summary>
+        <div class="gauge" style="width:56px; height:56px; flex:none;">
+            <div class="ring" style="width:100%; height:100%; background: conic-gradient(var(--teal) 0% {{ s.match_score }}%, var(--line) {{ s.match_score }}% 100%);">
+                <div class="hole" style="width:42px; height:42px;">
+                    <div class="n" style="font-size:11px;">{{ s.match_score|floatformat:0 }}%</div>
+                </div>
+            </div>
+        </div>
+        <div class="road-title">
+            <p class="road-rank">#{{ forloop.counter }} match</p>
+            <h3>{{ s.career.name }}</h3>
+            <p class="road-tip">{{ s.tip }}</p>
+        </div>
+        <svg class="icon-sm road-chevron" viewBox="0 0 24 24"><polyline points="6,9 12,15 18,9"/></svg>
+    </summary>
+
+    <div class="road-body">
+
+        <h4 class="road-h">Subjects to focus on</h4>
+        {% for f in r.focus_subjects %}
+        <div class="road-subject">
+            <div class="road-subject-top">
+                <span class="name">{{ f.name }}</span>
+                <span class="road-hours">~{{ f.hours }} h/week</span>
+            </div>
+            <div class="road-bar">
+                {% if f.current is not None %}
+                <div class="fill {{ f.status }}" style="width: {{ f.current|floatformat:0 }}%;"></div>
+                {% endif %}
+                <div class="target" style="left: {{ f.target|floatformat:0 }}%;" title="Target {{ f.target|floatformat:0 }}%"></div>
+            </div>
+            <div class="road-subject-bottom">
+                <span>
+                    {% if f.current is not None %}{{ f.current|floatformat:0 }}% now &middot; target {{ f.target|floatformat:0 }}%
+                    {% elif f.in_courses %}No marks entered yet &middot; target {{ f.target|floatformat:0 }}%
+                    {% else %}Not in your added subjects &middot; target {{ f.target|floatformat:0 }}%{% endif %}
+                </span>
+                <span class="road-pill {{ f.status }}">
+                    {% if f.status == 'needs_work' %}Needs work{% elif f.status == 'no_marks' %}No marks{% elif f.status == 'on_track' %}On track{% else %}Strong{% endif %}
+                </span>
+            </div>
+        </div>
+        {% empty %}
+        <p class="road-muted">This path has no required subjects defined.</p>
+        {% endfor %}
+
+        <h4 class="road-h">Study time</h4>
+        <div class="road-study {{ r.study.status }}">
+            <div><span class="road-muted">You log</span><b>{{ r.study.current_label|default:"Not logged yet" }}</b></div>
+            <div><span class="road-muted">This path needs</span><b>{{ r.study.recommended_label|default:"Any" }}</b></div>
+            <div><span class="road-muted">Suggested plan</span><b>~{{ r.study.weekly_hours }} h/week</b></div>
+        </div>
+        {% if r.study.status == 'low' %}
+        <p class="road-note warn">You are below the study time this path usually needs. Raise it gradually and log it when you enter marks.</p>
+        {% elif r.study.status == 'unknown' %}
+        <p class="road-note">Log your weekly study time on the Enter Marks page for a precise plan.</p>
+        {% endif %}
+
+        {% if r.skills or r.languages_missing or r.languages_have %}
+        <h4 class="road-h">Skills to build</h4>
+        {% for g in r.skills %}
+        <div class="road-skill">
+            <span class="name">{{ g.label }} <em>{{ g.kind }}</em></span>
+            <span class="dots">{% for i in "12345" %}<i class="{% if forloop.counter <= g.rating %}on{% elif forloop.counter <= g.target %}goal{% endif %}"></i>{% endfor %}</span>
+            <span class="val">{{ g.rating }}/5 &rarr; {{ g.target }}/5</span>
+        </div>
+        {% endfor %}
+        {% if r.languages_missing or r.languages_have %}
+        <div class="chip-row" style="margin-top:10px;">
+            {% for l in r.languages_have %}<span class="road-lang have">&#10003; {{ l }}</span>{% endfor %}
+            {% for l in r.languages_missing %}<span class="road-lang miss">Learn {{ l }}</span>{% endfor %}
+        </div>
+        {% endif %}
+        {% endif %}
+
+        {% if r.steps %}
+        <h4 class="road-h">Your plan</h4>
+        <ol class="road-steps">
+            {% for step in r.steps %}
+            <li>
+                <b>{{ step.title }}</b>
+                <ul>{% for item in step.items %}<li>{{ item }}</li>{% endfor %}</ul>
+            </li>
+            {% endfor %}
+        </ol>
+        {% else %}
+        <p class="road-note ok">No gaps found &mdash; keep your current routine going.</p>
+        {% endif %}
+    </div>
+</details>
+{% endwith %}
+{% endfor %}
+
+{% endif %}
+
+{% endblock %}

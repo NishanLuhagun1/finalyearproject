@@ -1,0 +1,9 @@
+Django>=6.0,<6.1
+PyMySQL>=1.1
+pandas>=2.2
+numpy>=2.0
+joblib>=1.4
+# The bundled model (best_model.pkl) was saved with 1.8.0; other versions
+# load it with an "InconsistentVersionWarning" and may behave differently.
+scikit-learn==1.8.0
+openpyxl>=3.1

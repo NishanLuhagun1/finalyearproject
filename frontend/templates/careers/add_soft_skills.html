@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="stepper">
+    <div class="step done n5"><div class="dot">&#10003;</div><div class="label">Subject</div></div>
+    <div class="step done n4"><div class="dot">&#10003;</div><div class="label">Marks</div></div>
+    <div class="step done n3"><div class="dot">&#10003;</div><div class="label">Interest</div></div>
+    <div class="step active n2"><div class="dot">4</div><div class="label">Soft skills</div></div>
+    <div class="step n1"><div class="dot">5</div><div class="label">Score</div></div>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="semester" value="{{ selected_semester }}">
+
+    <div class="card card-attached">
+        <h3>Rate your soft skills</h3>
+
+        <div class="skill-row">
+            <div class="top"><span class="name">Communication</span><span class="val">{{ form.communication_skill.value|default:3 }} / 5</span></div>
+            {{ form.communication_skill }}
+        </div>
+        <div class="skill-row">
+            <div class="top"><span class="name">Teamwork</span><span class="val">{{ form.teamwork_skill.value|default:3 }} / 5</span></div>
+            {{ form.teamwork_skill }}
+        </div>
+        <div class="skill-row">
+            <div class="top"><span class="name">Problem solving</span><span class="val">{{ form.problem_solving_skill.value|default:3 }} / 5</span></div>
+            {{ form.problem_solving_skill }}
+        </div>
+        <div class="skill-row">
+            <div class="top"><span class="name">Leadership</span><span class="val">{{ form.leadership_skill.value|default:3 }} / 5</span></div>
+            {{ form.leadership_skill }}
+        </div>
+        <div class="skill-row">
+            <div class="top"><span class="name">Adaptability</span><span class="val">{{ form.adaptability_skill.value|default:3 }} / 5</span></div>
+            {{ form.adaptability_skill }}
+        </div>
+        <div class="skill-row">
+            <div class="top"><span class="name">Time management</span><span class="val">{{ form.time_management_skill.value|default:3 }} / 5</span></div>
+            {{ form.time_management_skill }}
+        </div>
+        <div class="skill-row">
+            <div class="top"><span class="name">Critical thinking</span><span class="val">{{ form.critical_thinking_skill.value|default:3 }} / 5</span></div>
+            {{ form.critical_thinking_skill }}
+        </div>
+        <div class="skill-row" style="margin-bottom: 4px;">
+            <div class="top"><span class="name">Creativity</span><span class="val">{{ form.creativity_skill.value|default:3 }} / 5</span></div>
+            {{ form.creativity_skill }}
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Rate your technical skills</h3>
+
+        <div class="skill-row">
+            <div class="top"><span class="name">Programming</span><span class="val">{{ form.programming_skill.value|default:3 }} / 5</span></div>
+            {{ form.programming_skill }}
+        </div>
+        <div class="skill-row">
+            <div class="top"><span class="name">Database</span><span class="val">{{ form.database_skill.value|default:3 }} / 5</span></div>
+            {{ form.database_skill }}
+        </div>
+        <div class="skill-row">
+            <div class="top"><span class="name">Web development</span><span class="val">{{ form.web_dev_skill.value|default:3 }} / 5</span></div>
+            {{ form.web_dev_skill }}
+        </div>
+        <div class="skill-row" style="margin-bottom: 4px;">
+            <div class="top"><span class="name">Networking</span><span class="val">{{ form.networking_skill.value|default:3 }} / 5</span></div>
+            {{ form.networking_skill }}
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Programming languages you know</h3>
+        <div class="chip-row">
+            {% for checkbox in form.programming_languages %}
+                <label class="chip">
+                    {{ checkbox.tag }} {{ checkbox.choice_label }}
+                </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="step-nav">
+        <a href="{% url 'add_interest' %}?semester={{ selected_semester }}" style="flex:1;">
+            <button type="button" class="btn-secondary" style="width:100%;">Back</button>
+        </a>
+        <button type="submit" class="btn-primary">Continue to score</button>
+    </div>
+</form>
+
+<script>
+document.querySelectorAll('.skill-row input[type="range"]').forEach(function (el) {
+    var updateFill = function () {
+        var pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+        el.style.setProperty('--fill', pct + '%');
+        var valEl = el.closest('.skill-row').querySelector('.val');
+        valEl.textContent = el.value + ' / 5';
+    };
+    updateFill();
+    el.addEventListener('input', updateFill);
+});
+</script>
+
+{% endblock %}

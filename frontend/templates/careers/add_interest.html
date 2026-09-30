@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="stepper">
+    <div class="step done n5"><div class="dot">&#10003;</div><div class="label">Subject</div></div>
+    <div class="step done n4"><div class="dot">&#10003;</div><div class="label">Marks</div></div>
+    <div class="step active n3"><div class="dot">3</div><div class="label">Interest</div></div>
+    <div class="step n2"><div class="dot">4</div><div class="label">Soft skills</div></div>
+    <div class="step n1"><div class="dot">5</div><div class="label">Score</div></div>
+</div>
+
+<div class="card card-attached">
+    <h3>Career interest</h3>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="semester" value="{{ selected_semester }}">
+        <div class="field">
+            {{ form.interest_area.label_tag }}
+            {{ form.interest_area }}
+        </div>
+        <br>
+        <div class="step-nav">
+            <a href="{% url 'add_marks' %}?semester={{ selected_semester }}" style="flex:1;">
+                <button type="button" class="btn-secondary" style="width:100%;">Back</button>
+            </a>
+            <button type="submit" class="btn-primary">Continue</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

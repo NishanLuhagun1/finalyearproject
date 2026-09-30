@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="stepper">
+    <div class="step done n5"><div class="dot">&#10003;</div><div class="label">Subject</div></div>
+    <div class="step active n4"><div class="dot">2</div><div class="label">Marks</div></div>
+    <div class="step n3"><div class="dot">3</div><div class="label">Interest</div></div>
+    <div class="step n2"><div class="dot">4</div><div class="label">Soft skills</div></div>
+    <div class="step n1"><div class="dot">5</div><div class="label">Score</div></div>
+</div>
+
+<div class="card card-attached">
+    <h3>Enter marks for each subject</h3>
+    <p style="font-size:12.5px; color:var(--slate-soft); margin:-10px 0 14px;">
+        Assignment is out of 20; exam and attendance are percentages (0&ndash;100). Leave a set blank to skip it.
+    </p>
+
+    {% if errors %}
+    <div class="form-errors" role="alert">
+        <b>Please fix these before saving:</b>
+        <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+
+    {% if entries %}
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="semester" value="{{ selected_semester }}">
+        {% for entry in entries %}
+        {% with ss=entry.ss %}
+        <div class="subject-block">
+            <p class="subj-title">{{ ss.subject.name }} — Semester {{ ss.semester }}</p>
+
+            <div class="marks-set">
+                <p class="set-name">Midterm</p>
+                <div class="marks-grid">
+                    <div class="field">
+                        <label>Assignment (0&ndash;20)</label>
+                        <input type="number" step="0.01" min="0" max="20" name="assignment_midterm_{{ ss.id }}" value="{{ entry.midterm.assignment }}">
+                    </div>
+                    <div class="field">
+                        <label>Exam score (0&ndash;100)</label>
+                        <input type="number" step="0.01" min="0" max="100" name="exam_midterm_{{ ss.id }}" value="{{ entry.midterm.exam }}">
+                    </div>
+                    <div class="field">
+                        <label>Attendance % (0&ndash;100)</label>
+                        <input type="number" step="0.01" min="0" max="100" name="attendance_midterm_{{ ss.id }}" value="{{ entry.midterm.attendance }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="marks-set">
+                <p class="set-name">Preboard</p>
+                <div class="marks-grid">
+                    <div class="field">
+                        <label>Assignment (0&ndash;20)</label>
+                        <input type="number" step="0.01" min="0" max="20" name="assignment_preboard_{{ ss.id }}" value="{{ entry.preboard.assignment }}">
+                    </div>
+                    <div class="field">
+                        <label>Exam score (0&ndash;100)</label>
+                        <input type="number" step="0.01" min="0" max="100" name="exam_preboard_{{ ss.id }}" value="{{ entry.preboard.exam }}">
+                    </div>
+                    <div class="field">
+                        <label>Attendance % (0&ndash;100)</label>
+                        <input type="number" step="0.01" min="0" max="100" name="attendance_preboard_{{ ss.id }}" value="{{ entry.preboard.attendance }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+
+        <div class="field" style="margin-bottom: 18px;">
+            <label>Weekly study time this semester</label>
+            <select name="study_time">
+                {% for value, label in study_time_choices %}
+                <option value="{{ value }}" {% if study_time_value == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn-primary">Save marks and continue</button>
+    </form>
+    {% else %}
+        <p style="color: var(--slate); font-size: 13px;">No subjects added yet. Go back and add a subject first.</p>
+    {% endif %}
+</div>
+
+<div class="step-nav">
+    <a href="{% url 'add_subject' %}?semester={{ selected_semester }}" style="flex:1;">
+        <button type="button" class="btn-secondary" style="width:100%;">Back</button>
+    </a>
+</div>
+
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Your Goals</h2>
+
+<div class="card">
+    <h3>Add a goal</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="field-row">
+            <div class="field">
+                {{ form.title.label_tag }}
+                {{ form.title }}
+                {{ form.title.errors }}
+            </div>
+            <div class="field">
+                {{ form.target_date.label_tag }}
+                {{ form.target_date }}
+                {{ form.target_date.errors }}
+            </div>
+        </div>
+        <button type="submit" class="btn-primary">Add goal</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Your goals</h3>
+    {% if goals %}
+        {% for goal in goals %}
+        <div class="eligibility-row" style="gap:12px; flex-wrap:wrap;">
+            <span style="flex:1; min-width:160px; {% if goal.is_completed %}text-decoration:line-through; color:var(--slate-soft);{% endif %}">
+                {{ goal.title }}
+                {% if goal.target_date %}<span style="display:block; font-size:11.5px; color:var(--slate-soft);">Target: {{ goal.target_date|date:"j M Y" }}</span>{% endif %}
+            </span>
+            <span style="display:flex; gap:6px;">
+                <form method="post" action="{% url 'toggle_goal' goal.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-secondary" style="width:auto; padding:6px 12px;">{% if goal.is_completed %}Reopen{% else %}Mark done{% endif %}</button>
+                </form>
+                <form method="post" action="{% url 'delete_goal' goal.id %}" onsubmit="return confirm('Delete this goal?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-secondary" style="width:auto; padding:6px 12px;">Delete</button>
+                </form>
+            </span>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:var(--slate); font-size:14px;">No goals yet. Add one above.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

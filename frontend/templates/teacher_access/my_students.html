@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>My Students</h2>
+
+<div class="card">
+    <h3>Add a student</h3>
+    <p style="font-size:13px; color:var(--slate); margin:-10px 0 14px;">
+        Paste the invite link your student generated (or just its code) to get access to their progress.
+    </p>
+    <form method="post" action="{% url 'join_teacher_invite' %}" style="display:flex; gap:8px; flex-wrap:wrap;">
+        {% csrf_token %}
+        <input type="text" name="invite" required autocomplete="off" placeholder="http://.../teacher-access/accept/&hellip;"
+               style="flex:1; min-width:220px; font-size:13px; padding:10px 12px; border:1.5px solid var(--line); border-radius:10px; background:var(--surface); color:var(--ink); font-family:var(--font-body);">
+        <button type="submit" class="btn-primary" style="width:auto; padding:10px 22px;">Connect</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Students who shared access</h3>
+    {% if grants %}
+        {% for grant in grants %}
+        <div class="eligibility-row">
+            <a href="{% url 'teacher_student_detail' grant.id %}" style="color:var(--teal-deep); font-weight:600;">{{ grant.student.full_name }}</a>
+            <span style="color:var(--slate-soft); font-size:12px;">{{ grant.student.course.name|default:"No course set" }}</span>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:var(--slate); font-size:14px;">No students have shared access with you yet.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

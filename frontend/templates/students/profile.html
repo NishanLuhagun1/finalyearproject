@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>My Profile</h2>
+
+<div class="card">
+    <div class="eligibility-row"><span>Full name</span><span>{{ student.full_name }}</span></div>
+    <div class="eligibility-row"><span>Student ID</span><span>{{ student.student_id }}</span></div>
+    <div class="eligibility-row"><span>Username</span><span>{{ student.profile.user.username }}</span></div>
+    <div class="eligibility-row"><span>College</span><span>{{ student.college_name|default:"Not set" }}</span></div>
+    <div class="eligibility-row"><span>Contact</span><span>{{ student.contact|default:"Not set" }}</span></div>
+    <div class="eligibility-row"><span>Address</span><span>{{ student.address|default:"Not set" }}</span></div>
+</div>
+
+<div class="card">
+    <h3>Course</h3>
+    <p style="font-size:13px; color:var(--slate); margin:-10px 0 14px;">
+        This determines which subjects show up when you add a subject. Change it any time.
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="field">
+            {{ course_form.course.label_tag }}
+            {{ course_form.course }}
+        </div>
+        <button type="submit" class="btn-primary" style="margin-top: 14px;">Save course</button>
+    </form>
+</div>
+
+{% endblock %}

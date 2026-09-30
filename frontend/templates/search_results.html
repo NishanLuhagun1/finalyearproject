@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Search results for "{{ query }}"</h2>
+
+<div class="card">
+    <h3>Subjects</h3>
+    {% if subject_results %}
+        {% for s in subject_results %}
+        <div class="eligibility-row">
+            <a href="{% url 'score_summary' %}?semester={{ s.semester }}" style="color:var(--teal-deep); font-weight:600;">{{ s.name }}</a>
+            <span>Semester {{ s.semester }}</span>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:var(--slate); font-size:13px;">No matching subjects.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3>Goals</h3>
+    {% if goal_results %}
+        {% for g in goal_results %}
+        <div class="eligibility-row">
+            <a href="{% url 'goal_list' %}" style="color:var(--teal-deep); font-weight:600;">{{ g.title }}</a>
+            <span>{% if g.is_completed %}Completed{% else %}In progress{% endif %}</span>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:var(--slate); font-size:13px;">No matching goals.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

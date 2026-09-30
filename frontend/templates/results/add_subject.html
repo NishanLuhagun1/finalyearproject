@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="stepper">
+    <div class="step active n5"><div class="dot">1</div><div class="label">Subject</div></div>
+    <div class="step n4"><div class="dot">2</div><div class="label">Marks</div></div>
+    <div class="step n3"><div class="dot">3</div><div class="label">Interest</div></div>
+    <div class="step n2"><div class="dot">4</div><div class="label">Soft skills</div></div>
+    <div class="step n1"><div class="dot">5</div><div class="label">Score</div></div>
+</div>
+
+<div class="card card-attached">
+    <div class="field-row">
+        <div>
+            <p class="step-label">Course</p>
+            {% if student_course %}
+                <p style="font-size:15px; font-weight:600; margin:0;">{{ student_course.name }}</p>
+            {% else %}
+                <p style="font-size:13px; color:var(--amber-text); background:var(--amber-wash); padding:8px 12px; border-radius:8px; margin:0;">
+                    No course set yet. <a href="{% url 'student_profile' %}" style="color:var(--teal-deep); font-weight:600;">Set it on your Profile page</a> to see your subjects.
+                </p>
+            {% endif %}
+        </div>
+        <div>
+            <p class="step-label">Semester</p>
+            <form method="get">
+                <select name="semester" onchange="this.form.submit()" style="padding:11px 12px; border:1.5px solid var(--line); border-radius:10px; font-size:14px; font-family:var(--font-body); background:var(--surface); color:var(--ink); width:100%;">
+                    {% for s in semester_choices %}
+                    <option value="{{ s }}" {% if s == selected_semester %}selected{% endif %}>Semester {{ s }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Your added subjects</h3>
+    {% if subject_status %}
+        {% for item in subject_status %}
+        <div class="subject-row">
+            <div>
+                <span class="name">{{ item.subject_obj.subject.name }}</span>
+                <span class="sem">Semester {{ item.subject_obj.semester }}</span>
+            </div>
+            {% if item.has_midterm and item.has_preboard %}
+                <span class="status-pill ok">Marks complete</span>
+            {% elif item.has_midterm or item.has_preboard %}
+                <span class="status-pill">Partially entered</span>
+            {% else %}
+                <span class="status-pill">No marks yet</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color: var(--slate); font-size: 13px;">No subjects added yet.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3>Add subject</h3>
+    {% if student_course %}
+    <p style="font-size:12.5px; color:var(--slate-soft); margin:-10px 0 14px;">Showing all {{ student_course.name }} subjects &mdash; pick the semester you're taking it in below</p>
+    {% endif %}
+    {% if no_subjects_available %}
+        <p style="color: var(--amber-text); font-size: 13px; background: var(--amber-wash); padding: 10px 12px; border-radius: 8px;">
+            {% if student_course %}
+                No subjects have been set up yet for {{ student_course.name }}. Ask your administrator to add them.
+            {% else %}
+                No course is set on your profile yet, so subjects can't be filtered. <a href="{% url 'student_profile' %}" style="color:var(--teal-deep); font-weight:600;">Set your course here</a>.
+            {% endif %}
+        </p>
+    {% else %}
+    <form method="post">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div class="field-row">
+            <div class="field">
+                {{ form.subject.label_tag }}
+                {{ form.subject }}
+                {{ form.subject.errors }}
+            </div>
+            <div class="field">
+                {{ form.semester.label_tag }}
+                {{ form.semester }}
+                {{ form.semester.errors }}
+            </div>
+        </div>
+        <button type="submit" class="btn-primary">Add subject</button>
+    </form>
+    {% endif %}
+</div>
+
+{% if subject_status %}
+<a href="{% url 'add_marks' %}?semester={{ selected_semester }}">
+    <button type="button" class="btn-secondary" style="width:100%; margin-bottom: 16px;">Continue to marks entry</button>
+</a>
+{% endif %}
+
+<div class="step-nav">
+    <a href="{% url 'dashboard' %}" style="flex:1;">
+        <button type="button" class="btn-secondary" style="width:100%;">Back to Dashboard</button>
+    </a>
+</div>
+
+{% endblock %}

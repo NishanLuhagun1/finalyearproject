@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>{{ student.full_name }}</h2>
+<p style="color:var(--slate); font-size:14px; margin-top:-8px;">{{ student.course.name|default:"No course set" }} &middot; {{ student.student_id }}</p>
+
+<div class="card">
+    <h3>Subjects &amp; marks</h3>
+    {% for ss in subjects %}
+    <p style="font-weight:600; font-size:14px; margin:14px 0 6px;">{{ ss.subject.name }} &mdash; Semester {{ ss.semester }}</p>
+    {% for r in ss.results.all %}
+    <div class="eligibility-row">
+        <span>{{ r.get_exam_type_display }}</span>
+        <span>{{ r.weighted_score|default:"-" }} / 100{% if r.predicted_score is not None %} &middot; Predicted: {{ r.predicted_score }}{% endif %}</span>
+    </div>
+    {% endfor %}
+    {% empty %}
+    <p style="color:var(--slate); font-size:13px;">No subjects added yet.</p>
+    {% endfor %}
+</div>
+
+<div class="card">
+    <h3>Career suggestions</h3>
+    {% if suggestions %}
+        {% for s in suggestions %}
+        <div class="eligibility-row">
+            <span style="font-weight:600;">{{ s.career.name }}</span>
+            <span class="{% if s.match_score >= 70 %}status-ok{% else %}status-fail{% endif %}">{{ s.match_score }}% match</span>
+        </div>
+        <p style="font-size:12px; color:var(--slate); margin:0 0 12px;">{{ s.tip }}</p>
+        {% endfor %}
+    {% else %}
+        <p style="color:var(--slate); font-size:13px;">This student hasn't completed their career assessment yet.</p>
+    {% endif %}
+</div>
+
+{% endblock %}
